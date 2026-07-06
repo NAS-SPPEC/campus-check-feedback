@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Campus Check — NAS Facilities Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F5F1E8;
+    --ink:#22201C;
+    --ink-soft:#5B564C;
+    --teal:#1D6B64;
+    --teal-deep:#134E49;
+    --teal-soft:#E5F0EE;
+    --orange:#D97A3D;
+    --orange-deep:#B25E27;
+    --red:#B4482F;
+    --line:#DDD5C4;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:540px;margin:0 auto;padding:0 0 64px;}
+  header.top{
+    padding:26px 20px 20px;
+    border-bottom:2px solid var(--ink);
+    position:relative;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .compass{width:46px;height:46px;flex-shrink:0;opacity:.92;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin:0 0 6px;
+  }
+  h1.title{
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:34px;
+    letter-spacing:.01em; text-transform:uppercase; margin:0; line-height:.95;
+  }
+  h1.title span{color:var(--teal);}
+  .sub{font-size:13.5px; color:var(--ink-soft); margin:10px 0 0; max-width:38ch; line-height:1.45;}
+
+  section{padding:22px 20px;}
+  .section-label{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); display:flex; align-items:center; gap:10px; margin:0 0 14px;
+  }
+  .section-label::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  /* Service picker */
+  .svc-grid{display:flex; flex-direction:column; gap:12px;}
+  .svc-card{
+    display:flex; align-items:center; gap:14px;
+    border:2px solid var(--ink); border-radius:3px; padding:16px 16px;
+    background:var(--card); cursor:pointer; transition:background .12s, transform .08s;
+    text-align:left; text-decoration:none; color:var(--ink); width:100%;
+  }
+  .svc-card:active{transform:scale(.98);}
+  .svc-card:hover{background:var(--teal-soft);}
+  .svc-icon{width:34px;height:34px;flex-shrink:0;color:var(--teal);}
+  .svc-text .svc-name{font-family:'Oswald',sans-serif; font-weight:600; font-size:18px; text-transform:uppercase; letter-spacing:.01em;}
+  .svc-text .svc-desc{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .svc-card.unsure{border-style:dashed;}
+
+  /* Back link + selected service header */
+  .back-link{
+    background:none; border:none; color:var(--ink-soft); font-size:12px; font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.05em; cursor:pointer; padding:4px 0; text-decoration:underline;
+  }
+  .selected-banner{
+    display:flex; align-items:center; gap:10px; padding:14px 20px; background:var(--teal); color:#fff;
+  }
+  .selected-banner .svc-icon{color:#fff; width:26px; height:26px;}
+  .selected-banner .name{font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; text-transform:uppercase;}
+
+  label.field-label{display:block; font-weight:600; font-size:14px; margin-bottom:8px;}
+  select.zone, input.text-input{
+    width:100%; padding:13px 14px; font-size:16px; font-family:'Inter',sans-serif;
+    border:2px solid var(--ink); border-radius:2px; background:var(--card); color:var(--ink);
+  }
+  select.zone{
+    appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%2322201C' stroke-width='2' fill='none'/></svg>");
+    background-repeat:no-repeat; background-position:right 14px center;
+  }
+  .field-gap{margin-bottom:18px;}
+
+  .gauge-row{margin-bottom:20px;}
+  .gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .gauge-name{font-weight:600;font-size:15px;}
+  .gauge-value{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink-soft); min-width:60px; text-align:right;}
+  .gauge{display:flex; gap:5px;}
+  .seg{flex:1; height:34px; border-radius:3px; border:2px solid var(--ink); background:var(--card); cursor:pointer; transition:background .12s, transform .08s;}
+  .seg:active{transform:scale(.96);}
+  .seg.fill-1{background:var(--red);}
+  .seg.fill-2{background:#C97840;}
+  .seg.fill-3{background:var(--orange);}
+  .seg.fill-4{background:#5E9187;}
+  .seg.fill-5{background:var(--teal);}
+
+  .check-row{display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid var(--line); gap:12px;}
+  .check-row:last-child{border-bottom:none;}
+  .check-text{font-size:14.5px; line-height:1.35;}
+  .toggle{display:flex; border:2px solid var(--ink); border-radius:20px; overflow:hidden; flex-shrink:0;}
+  .toggle button{font-family:'Inter',sans-serif; font-weight:600; font-size:13px; border:none; background:var(--card); color:var(--ink); padding:8px 16px; cursor:pointer;}
+  .toggle button.on-yes{background:var(--teal); color:#fff;}
+  .toggle button.on-no{background:var(--red); color:#fff;}
+  .toggle button + button{border-left:2px solid var(--ink);}
+
+  .incident-toggle{
+    display:flex; align-items:center; justify-content:space-between; padding:16px; border:2px solid var(--ink);
+    border-radius:3px; background:var(--card); cursor:pointer; margin-bottom:16px;
+  }
+  .incident-toggle .lbl{font-family:'Oswald',sans-serif; font-weight:600; font-size:15px; text-transform:uppercase;}
+  .incident-toggle .plus{font-size:22px; font-weight:700; color:var(--orange); transition:transform .15s;}
+  .incident-toggle.open .plus{transform:rotate(45deg);}
+  .incident-body{border:2px solid var(--ink); border-top:none; padding:16px; margin-top:-16px; margin-bottom:16px; background:var(--teal-soft);}
+  textarea.comment{
+    width:100%; min-height:80px; padding:12px 14px; font-family:'Inter',sans-serif; font-size:14.5px;
+    border:2px solid var(--ink); border-radius:2px; resize:vertical; background:var(--card); color:var(--ink);
+  }
+
+  .submit-bar{padding:8px 20px 0;}
+  button.submit{
+    width:100%; padding:17px; font-family:'Oswald',sans-serif; font-weight:600; font-size:18px;
+    letter-spacing:.04em; text-transform:uppercase; background:var(--ink); color:var(--cream); border:none;
+    border-radius:2px; cursor:pointer; transition:background .15s;
+  }
+  button.submit:hover{background:var(--teal-deep);}
+  button.submit:disabled{background:#B9B2A2; cursor:not-allowed;}
+  .req-note{font-size:12px; color:var(--ink-soft); text-align:center; margin-top:10px;}
+  .err-note{font-size:13px; color:var(--red); text-align:center; margin-top:10px; font-weight:600;}
+
+  .done{padding:60px 24px; text-align:center;}
+  .done .bib{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:12px; border:2px solid var(--ink); padding:5px 12px; border-radius:20px; margin-bottom:18px; letter-spacing:.1em;}
+  .done h2{font-family:'Oswald',sans-serif; font-size:30px; text-transform:uppercase; margin:0 0 10px;}
+  .done p{color:var(--ink-soft); font-size:14.5px; line-height:1.5; margin:0 0 26px;}
+  .done button{
+    background:transparent; border:2px solid var(--ink); color:var(--ink); font-family:'Oswald',sans-serif;
+    font-weight:600; text-transform:uppercase; letter-spacing:.03em; padding:13px 26px; border-radius:2px; cursor:pointer; font-size:14px;
+  }
+
+  footer.foot{padding:26px 20px 6px; text-align:center;}
+  .committee-link{
+    background:none; border:none; color:var(--ink-soft); font-size:12px; font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.06em; cursor:pointer; text-decoration:underline; padding:8px;
+  }
+
+  /* Admin view */
+  .admin-wrap{max-width:1040px;margin:0 auto;padding:24px 18px 60px;}
+  .admin-top{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:22px; flex-wrap:wrap; gap:14px;}
+  .admin-title{font-family:'Oswald',sans-serif; font-size:26px; text-transform:uppercase; margin:0;}
+  .admin-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn-ghost{font-family:'Inter',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border:2px solid var(--ink); background:transparent; color:var(--ink); border-radius:2px; cursor:pointer;}
+  .btn-solid{font-family:'Inter',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border:2px solid var(--ink); background:var(--ink); color:var(--cream); border-radius:2px; cursor:pointer;}
+  .btn-danger{font-family:'Inter',sans-serif; font-weight:600; font-size:13px; padding:9px 16px; border:2px solid var(--red); background:transparent; color:var(--red); border-radius:2px; cursor:pointer;}
+  .row-del{background:none; border:1px solid var(--red); color:var(--red); border-radius:2px; font-size:11px; padding:4px 8px; cursor:pointer;}
+  .filter-row{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .filter-chip{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.04em; padding:7px 14px; border:2px solid var(--ink);
+    border-radius:20px; background:var(--card); cursor:pointer; text-transform:uppercase;
+  }
+  .filter-chip.active{background:var(--ink); color:var(--cream);}
+  .stat-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px;}
+  .stat{background:var(--card); border:2px solid var(--ink); border-radius:2px; padding:14px 18px; min-width:140px;}
+  .stat .n{font-family:'Oswald',sans-serif; font-size:28px;}
+  .stat .l{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+  table.log{width:100%; border-collapse:collapse; font-size:12.5px; background:var(--card);}
+  table.log th, table.log td{border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top;}
+  table.log th{background:var(--ink); color:var(--cream); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em;}
+  table.log tr:nth-child(even) td{background:#FAF7F0;}
+  .badge{display:inline-block; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700; text-transform:uppercase;}
+  .badge.janitorial{background:#E5F0EE; color:var(--teal-deep);}
+  .badge.security{background:#F4E4E0; color:var(--red);}
+  .badge.om{background:#FBEBDD; color:var(--orange-deep);}
+  .badge.unsure{background:#EFEFEF; color:var(--ink-soft);}
+  .empty{padding:40px; text-align:center; color:var(--ink-soft); font-size:14px;}
+  .table-scroll{overflow-x:auto; border:2px solid var(--ink);}
+
+  .lock{max-width:340px; margin:80px auto; padding:0 20px; text-align:center;}
+  .lock input{width:100%; padding:12px 14px; font-size:16px; border:2px solid var(--ink); border-radius:2px; margin:16px 0; text-align:center; font-family:'IBM Plex Mono',monospace; letter-spacing:.1em;}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ── Wire this to your Apps Script Web App URL once deployed ──
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxf4KzzHL5kqn8bqs7-Jm9doxiVLlSnNRU7kvo3B2FLrkjatp3OO5gIVxDz8SsrpK_Q/exec";
+const ADMIN_PASS = "SPPEC2026"; // soft gate only — not real security
+
+const SERVICES = {
+  janitorial: {
+    label: "Cleanliness / Janitorial",
+    incidentExample: "e.g. Restroom in AAB 2nd floor not cleaned since yesterday",
+    desc: "Restrooms, common areas, trash, floors, grounds",
+    badge: "janitorial",
+    areas: ["Admin Building","Multi-Purpose Gym Building","Perimeter","Athletes Village","Residences","Grounds/Landscaping"],
+    ratings: [
+      {key:"cleanliness", label:"Overall Cleanliness"},
+      {key:"restroom", label:"Restroom Condition"},
+      {key:"odor", label:"Odor / Freshness"},
+      {key:"trash", label:"Trash Management"},
+      {key:"courtesy", label:"Staff Courtesy"},
+      {key:"promptness", label:"Promptness"},
+    ],
+    checklist: [
+      {key:"restroomstocked", label:"Restroom was stocked (tissue/soap)"},
+      {key:"floorsclean", label:"Floors were clean and dry"},
+      {key:"trashnotoverflow", label:"Trash bins were not overflowing"},
+      {key:"noodor", label:"No foul odor in the area"},
+      {key:"surfacesdust", label:"Surfaces were dust-free"},
+      {key:"windowsclean", label:"Windows/glass were clean"},
+      {key:"staffuniform", label:"Staff were in proper uniform"},
+      {key:"groundslitter", label:"Grounds/outdoor areas were free of litter"},
+    ]
+  },
+  security: {
+    label: "Security",
+    incidentExample: "e.g. Gate guard was not at post during my shift this morning",
+    desc: "Guards, ID checks, patrols, safety",
+    badge: "security",
+    areas: ["Perimeter","Multi-Purpose Gym Building","Academic and Administration Building","Athletes Village","Residences"],
+    ratings: [
+      {key:"presence", label:"Overall Security Presence"},
+      {key:"professionalism", label:"Professionalism / Courtesy"},
+      {key:"responsetime", label:"Response Time to Concerns"},
+      {key:"idcheck", label:"ID/Visitor Check Thoroughness"},
+      {key:"safety", label:"Perceived Safety"},
+      {key:"communication", label:"Communication Clarity"},
+    ],
+    checklist: [
+      {key:"uniform", label:"Guard was in complete uniform"},
+      {key:"idconducted", label:"ID/visitor check was conducted"},
+      {key:"courteous", label:"Guard was courteous and professional"},
+      {key:"alert", label:"Guard was alert and attentive"},
+      {key:"patrolvisible", label:"Patrol guard was visible this shift"},
+      {key:"concernaddressed", label:"Concern was addressed promptly"},
+      {key:"cctvstaffed", label:"CCTV/monitoring felt actively staffed"},
+    ]
+  },
+  om: {
+    label: "Facilities & Maintenance",
+    incidentExample: "e.g. AC not working in AAB 2nd floor conference room since Monday",
+    desc: "AC, plumbing, lighting, repairs, electronics",
+    badge: "om",
+    areas: ["Academic and Administration Building","Multisport Gymnasium","Motorpool and Utility Building"],
+    ratings: [
+      {key:"facilitycondition", label:"Building/Structural Condition (walls, paint, upkeep)"},
+      {key:"accomfort", label:"AC/Ventilation Comfort"},
+      {key:"plumbing", label:"Restroom Fixtures Working (toilets, faucets)"},
+      {key:"lighting", label:"Lighting Adequacy"},
+      {key:"response", label:"Response to Reported Issues"},
+      {key:"electronics", label:"Electronics/AV Systems Condition (PA, CCTV, scoreboard)"},
+    ],
+    checklist: [
+      {key:"acworking", label:"AC/fans were working properly"},
+      {key:"lightsworking", label:"Lights were functioning"},
+      {key:"noleaks", label:"No visible leaks or plumbing issues"},
+      {key:"firesafety", label:"Fire safety equipment was visible/accessible"},
+      {key:"nowiring", label:"No exposed or dangling electrical wiring observed"},
+      {key:"issuefixed", label:"A reported issue was fixed promptly"},
+      {key:"safewellmaintained", label:"Facility appeared safe and well-maintained"},
+    ]
+  }
+};
+
+let state = {
+  screen: "pick", // pick | form | unsure | done
+  service: null,
+  area: "",
+  name: "",
+  ratings: {},
+  checklist: {},
+  incidentOpen: false,
+  incidentDesc: "",
+  comment: "",
+  unsureArea: "",
+  unsureDesc: "",
+  submitting: false,
+  errorMsg: "",
+};
+
+const ICONS = {
+  janitorial: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3v6c0 2 1.5 3 3 3s3-1 3-3V3M9 12v9M15 3l3 18M15 9h4"/></svg>`,
+  security: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6l7-3z"/></svg>`,
+  om: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.7 6.3a4 4 0 00-5.4 5.4l-6 6 2 2 6-6a4 4 0 005.4-5.4l-2.3 2.3-2-2 2.3-2.3z"/></svg>`,
+  catering: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 3v6a3 3 0 003 3v9M7 3v6M10 3v6M17 3c-2 2-2 5-2 7a2 2 0 002 2v8"/></svg>`,
+  unsure: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17.5h.01" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg>`,
+};
+
+const FUEL_CHECK_URL = "https://nas-sppec.github.io/NAS-Fuel-Check-Dining-Feedback/";
+
+const COMPASS_SVG = `<svg class="compass" viewBox="0 0 48 48" fill="none">
+  <circle cx="24" cy="24" r="20" stroke="#22201C" stroke-width="1.6"/>
+  <circle cx="24" cy="24" r="1.6" fill="#22201C"/>
+  <path d="M24 6 L28 24 L24 42 L20 24 Z" fill="#1D6B64" opacity="0.9"/>
+  <path d="M6 24 L24 20 L42 24 L24 28 Z" fill="#D97A3D" opacity="0.9"/>
+</svg>`;
+
+function ratingComplete(cfg){ return cfg.ratings.every(f => state.ratings[f.key] > 0); }
+function checklistComplete(cfg){ return cfg.checklist.every(f => state.checklist[f.key] !== undefined); }
+function formValid(cfg){ return state.area && ratingComplete(cfg) && checklistComplete(cfg); }
+function segClass(val, i){ if (i > val) return "seg"; return "seg fill-" + val; }
+
+function renderPick(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <p class="eyebrow">National Academy of Sports &middot; SPPEC</p>
+          <h1 class="title">CAMPUS <span>CHECK</span></h1>
+          <p class="sub">Rate a facilities service, or flag something that needs attention. Takes under a minute.</p>
+        </div>
+        ${COMPASS_SVG}
+      </header>
+      <section>
+        <p class="section-label">What's this about?</p>
+        <div class="svc-grid">
+          ${Object.entries(SERVICES).map(([key, cfg]) => `
+            <button class="svc-card" data-svc="${key}">
+              <span class="svc-icon">${ICONS[key]}</span>
+              <span class="svc-text"><span class="svc-name">${cfg.label}</span><span class="svc-desc">${cfg.desc}</span></span>
+            </button>`).join("")}
+          <a class="svc-card" href="${FUEL_CHECK_URL}" target="_blank" rel="noopener noreferrer">
+            <span class="svc-icon">${ICONS.catering}</span>
+            <span class="svc-text"><span class="svc-name">Food / Catering</span><span class="svc-desc">Opens Fuel Check &mdash; our dedicated meal feedback form</span></span>
+          </a>
+          <button class="svc-card unsure" data-svc="unsure">
+            <span class="svc-icon">${ICONS.unsure}</span>
+            <span class="svc-text"><span class="svc-name">Not Sure</span><span class="svc-desc">Describe it, we'll route it to the right team</span></span>
+          </button>
+        </div>
+      </section>
+      <footer class="foot">
+        <button class="committee-link" id="committeeLink">SPPEC committee view &rarr;</button>
+      </footer>
+    </div>`;
+  app.querySelectorAll(".svc-card").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const svc = btn.dataset.svc;
+      if (svc === "unsure") { state.screen = "unsure"; renderUnsure(); }
+      else { state.screen = "form"; state.service = svc; renderForm(); }
+    });
+  });
+  document.getElementById("committeeLink").addEventListener("click", () => { renderLock(); });
+}
+
+function renderForm(){
+  const cfg = SERVICES[state.service];
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="wrap">
+      <div class="selected-banner">
+        <span class="svc-icon">${ICONS[state.service]}</span>
+        <span class="name">${cfg.label}</span>
+      </div>
+      <section style="padding-top:16px;">
+        <button class="back-link" id="backBtn">&larr; not this one</button>
+      </section>
+      <section style="padding-top:0;">
+        <label class="field-label" for="area">Area</label>
+        <select class="zone field-gap" id="area">
+          <option value="" disabled ${state.area? "" : "selected"}>Select one</option>
+          ${cfg.areas.map(a => `<option value="${a}" ${state.area===a?"selected":""}>${a}</option>`).join("")}
+        </select>
+        <label class="field-label" for="name">Name (optional)</label>
+        <input class="text-input" id="name" type="text" placeholder="Anonymous is fine" value="${state.name}">
+      </section>
+
+      <section>
+        <p class="section-label">Rate this service</p>
+        ${cfg.ratings.map(f => {
+          const v = state.ratings[f.key] || 0;
+          return `<div class="gauge-row">
+            <div class="gauge-head"><span class="gauge-name">${f.label}</span><span class="gauge-value">${v ? v + " / 5" : "tap to rate"}</span></div>
+            <div class="gauge" data-field="${f.key}">${[1,2,3,4,5].map(i => `<div class="${segClass(v,i)}" data-val="${i}"></div>`).join("")}</div>
+          </div>`;
+        }).join("")}
+      </section>
+
+      <section>
+        <p class="section-label">Quick check</p>
+        ${cfg.checklist.map(f => {
+          const v = state.checklist[f.key];
+          return `<div class="check-row">
+            <span class="check-text">${f.label}</span>
+            <div class="toggle" data-field="${f.key}">
+              <button data-val="Y" class="${v==='Y'?'on-yes':''}">Yes</button>
+              <button data-val="N" class="${v==='N'?'on-no':''}">No</button>
+            </div>
+          </div>`;
+        }).join("")}
+      </section>
+
+      <section>
+        <p class="section-label">Anything else (optional)</p>
+        <textarea class="comment" id="generalComment" placeholder="Commendations, general remarks, or context...">${state.comment}</textarea>
+      </section>
+
+      <section>
+        <div class="incident-toggle ${state.incidentOpen?'open':''}" id="incidentToggle">
+          <span class="lbl">Report a specific incident</span>
+          <span class="plus">+</span>
+        </div>
+        ${state.incidentOpen ? `
+        <div class="incident-body">
+          <label class="field-label" for="incidentDesc">What happened?</label>
+          <textarea class="comment" id="incidentDesc" placeholder="${cfg.incidentExample}">${state.incidentDesc}</textarea>
+        </div>` : ''}
+      </section>
+
+      <div class="submit-bar">
+        <button class="submit" id="submitBtn" ${formValid(cfg) && !state.submitting ? "" : "disabled"}>
+          ${state.submitting ? "Sending..." : "Submit"}
+        </button>
+        ${!formValid(cfg) ? '<p class="req-note">Fill in area, all ratings, and all checks to submit.</p>' : ''}
+        ${state.errorMsg ? `<p class="err-note">${state.errorMsg}</p>` : ''}
+      </div>
+      <footer class="foot">
+        <button class="committee-link" id="committeeLink">SPPEC committee view &rarr;</button>
+      </footer>
+    </div>`;
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    state = {...state, screen:"pick", service:null, area:"", ratings:{}, checklist:{}, incidentOpen:false, incidentDesc:"", comment:""};
+    renderPick();
+  });
+  document.getElementById("area").addEventListener("change", e => { state.area = e.target.value; renderForm(); });
+  document.getElementById("name").addEventListener("input", e => { state.name = e.target.value; });
+  app.querySelectorAll(".gauge").forEach(g => {
+    g.addEventListener("click", e => {
+      const seg = e.target.closest(".seg"); if(!seg) return;
+      state.ratings[g.dataset.field] = parseInt(seg.dataset.val); renderForm();
+    });
+  });
+  app.querySelectorAll(".toggle").forEach(t => {
+    t.addEventListener("click", e => {
+      const btn = e.target.closest("button"); if(!btn) return;
+      state.checklist[t.dataset.field] = btn.dataset.val; renderForm();
+    });
+  });
+  document.getElementById("generalComment").addEventListener("input", e => { state.comment = e.target.value; });
+  document.getElementById("incidentToggle").addEventListener("click", () => { state.incidentOpen = !state.incidentOpen; renderForm(); });
+  const descEl = document.getElementById("incidentDesc");
+  if (descEl) descEl.addEventListener("input", e => { state.incidentDesc = e.target.value; });
+  document.getElementById("submitBtn").addEventListener("click", submitFeedback);
+  document.querySelectorAll("#committeeLink").forEach(b => b.addEventListener("click", renderLock));
+}
+
+function renderUnsure(){
+  const app = document.getElementById("app");
+  const allAreas = [...new Set(Object.values(SERVICES).flatMap(s => s.areas))];
+  app.innerHTML = `
+    <div class="wrap">
+      <div class="selected-banner" style="background:var(--ink);">
+        <span class="svc-icon">${ICONS.unsure}</span>
+        <span class="name">Not Sure Which Team</span>
+      </div>
+      <section style="padding-top:16px;">
+        <button class="back-link" id="backBtn">&larr; back</button>
+      </section>
+      <section style="padding-top:0;">
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-top:0;">No problem &mdash; describe what you noticed and SPPEC will route it to the right team.</p>
+        <label class="field-label" for="uArea">Area (if known)</label>
+        <select class="zone field-gap" id="uArea">
+          <option value="" ${state.unsureArea? "" : "selected"}>Not sure / not listed</option>
+          ${allAreas.map(a => `<option value="${a}" ${state.unsureArea===a?"selected":""}>${a}</option>`).join("")}
+        </select>
+        <label class="field-label" for="uName">Name (optional)</label>
+        <input class="text-input field-gap" id="uName" type="text" placeholder="Anonymous is fine" value="${state.name}">
+        <label class="field-label" for="uDesc">What did you notice?</label>
+        <textarea class="comment" id="uDesc" placeholder="Describe the concern as best you can">${state.unsureDesc}</textarea>
+      </section>
+      <div class="submit-bar">
+        <button class="submit" id="submitBtn" ${state.unsureDesc.trim() && !state.submitting ? "" : "disabled"}>
+          ${state.submitting ? "Sending..." : "Submit"}
+        </button>
+        ${!state.unsureDesc.trim() ? '<p class="req-note">Add a short description to submit.</p>' : ''}
+        ${state.errorMsg ? `<p class="err-note">${state.errorMsg}</p>` : ''}
+      </div>
+    </div>`;
+  document.getElementById("backBtn").addEventListener("click", () => { state.screen="pick"; renderPick(); });
+  document.getElementById("uArea").addEventListener("change", e => { state.unsureArea = e.target.value; });
+  document.getElementById("uName").addEventListener("input", e => { state.name = e.target.value; });
+  document.getElementById("uDesc").addEventListener("input", e => { state.unsureDesc = e.target.value; renderUnsure(); });
+  document.getElementById("submitBtn").addEventListener("click", submitUnsure);
+}
+
+async function postToScript(payload){
+  const resp = await fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"}, // avoids CORS preflight; script parses body as JSON regardless
+    body: JSON.stringify(payload)
+  });
+  return resp.json();
+}
+
+async function submitFeedback(){
+  const cfg = SERVICES[state.service];
+  if(!formValid(cfg) || state.submitting) return;
+  state.submitting = true; state.errorMsg = ""; renderForm();
+  const now = new Date();
+  const feedbackPayload = {
+    kind: "feedback",
+    service: state.service,
+    timestamp: now.toISOString(),
+    date: now.toISOString().slice(0,10),
+    area: state.area,
+    name: state.name || "",
+    ratings: state.ratings,
+    checklist: state.checklist,
+    comment: state.comment || "",
+  };
+  try{
+    const result = await postToScript(feedbackPayload);
+    if(!result.ok) throw new Error(result.error || "Server rejected the submission");
+    if (state.incidentOpen && state.incidentDesc.trim()){
+      const incidentPayload = {
+        kind: "incident",
+        service: state.service,
+        timestamp: now.toISOString(),
+        date: now.toISOString().slice(0,10),
+        area: state.area,
+        reportedBy: state.name || "Anonymous",
+        nature: state.incidentDesc.trim(),
+      };
+      await postToScript(incidentPayload);
+    }
+  }catch(err){
+    console.error(err);
+    state.submitting = false; state.errorMsg = "Couldn't send — check your connection and try again."; renderForm(); return;
+  }
+  state.submitting = false;
+  renderDone();
+}
+
+async function submitUnsure(){
+  if(!state.unsureDesc.trim() || state.submitting) return;
+  state.submitting = true; state.errorMsg = ""; renderUnsure();
+  const now = new Date();
+  try{
+    const result = await postToScript({
+      kind: "incident", service: "unsure", timestamp: now.toISOString(), date: now.toISOString().slice(0,10),
+      area: state.unsureArea || "", reportedBy: state.name || "Anonymous", nature: state.unsureDesc.trim(),
+    });
+    if(!result.ok) throw new Error(result.error || "Server rejected the submission");
+  }catch(err){
+    console.error(err);
+    state.submitting = false; state.errorMsg = "Couldn't send — check your connection and try again."; renderUnsure(); return;
+  }
+  state.submitting = false;
+  renderDone();
+}
+
+function renderDone(){
+  const app = document.getElementById("app");
+  const ref = "NAS-" + Math.floor(1000+Math.random()*8999);
+  app.innerHTML = `
+    <div class="wrap">
+      <div class="done">
+        <div class="bib">${ref}</div>
+        <h2>Logged.</h2>
+        <p>Thanks for the heads up. SPPEC reviews these regularly to keep campus services on track.</p>
+        <button id="again">Submit another</button>
+      </div>
+    </div>`;
+  document.getElementById("again").addEventListener("click", () => {
+    state = {screen:"pick", service:null, area:"", name:"", ratings:{}, checklist:{}, incidentOpen:false, incidentDesc:"", comment:"", unsureArea:"", unsureDesc:"", submitting:false, errorMsg:""};
+    renderPick();
+  });
+}
+
+function renderLock(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="lock">
+      <p class="eyebrow" style="text-align:center">SPPEC committee view</p>
+      <p style="color:var(--ink-soft); font-size:13px;">This is a soft gate, not real security — anyone with the passphrase (or who reads the page source) can view submissions.</p>
+      <input type="password" id="pass" placeholder="Passphrase" autofocus>
+      <button class="btn-solid" id="enter" style="width:100%;">Enter</button>
+      <p style="margin-top:16px;"><button class="committee-link" id="back">&larr; back to form</button></p>
+    </div>`;
+  document.getElementById("enter").addEventListener("click", tryEnter);
+  document.getElementById("pass").addEventListener("keydown", e => { if(e.key==="Enter") tryEnter(); });
+  document.getElementById("back").addEventListener("click", renderPick);
+  function tryEnter(){
+    if(document.getElementById("pass").value === ADMIN_PASS){ renderAdmin(); }
+    else{ alert("Incorrect passphrase."); }
+  }
+}
+
+let adminFilter = "all";
+
+async function fetchAllEntries(){
+  const resp = await fetch(SCRIPT_URL); // GET
+  const result = await resp.json();
+  if(!result.ok) throw new Error(result.error || "Failed to load");
+  return result.entries; // array of {kind, service, date, area, name/reportedBy, ...}
+}
+
+async function renderAdmin(){
+  const app = document.getElementById("app");
+  app.innerHTML = `<div class="admin-wrap"><p class="empty">Loading submissions...</p></div>`;
+  let entries = [];
+  try{ entries = await fetchAllEntries(); }
+  catch(e){ app.innerHTML = `<div class="admin-wrap"><p class="empty">Couldn't load submissions. Check the Apps Script deployment, then refresh.</p></div>`; return; }
+
+  const filtered = adminFilter === "all" ? entries : entries.filter(e => e.service === adminFilter);
+  const feedbackCount = filtered.filter(e => e.kind === "feedback").length;
+  const incidentCount = filtered.filter(e => e.kind === "incident").length;
+
+  const app2 = document.getElementById("app");
+  app2.innerHTML = `
+    <div class="admin-wrap">
+      <div class="admin-top">
+        <h2 class="admin-title">SPPEC — Campus Check Submissions</h2>
+        <div class="admin-actions">
+          <button class="btn-ghost" id="refresh">Refresh</button>
+          <button class="btn-solid" id="exportCsv">Download CSV</button>
+          <button class="btn-ghost" id="archiveAll">Archive all &rarr;</button>
+          <button class="btn-ghost" id="backToForm">Back to form</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        ${["all","janitorial","security","om","unsure"].map(f => `<button class="filter-chip ${adminFilter===f?'active':''}" data-f="${f}">${f}</button>`).join("")}
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="n">${filtered.length}</div><div class="l">Total (filtered)</div></div>
+        <div class="stat"><div class="n">${feedbackCount}</div><div class="l">Feedback entries</div></div>
+        <div class="stat"><div class="n">${incidentCount}</div><div class="l">Incidents reported</div></div>
+      </div>
+      ${filtered.length === 0 ? '<p class="empty">No submissions yet for this filter.</p>' : `
+      <div class="table-scroll">
+      <table class="log">
+        <thead><tr><th>Date</th><th>Service</th><th>Type</th><th>Area</th><th>Name</th><th>Details</th><th></th></tr></thead>
+        <tbody>
+          ${filtered.map(e => `<tr>
+            <td>${e.date||""}</td>
+            <td><span class="badge ${e.service}">${e.service}</span></td>
+            <td>${e.kind}</td>
+            <td>${e.area||""}</td>
+            <td>${e.name || e.reportedBy || ""}</td>
+            <td>${e.kind === "incident" ? (e.nature||"").replace(/</g,"&lt;") : summarizeFeedback(e)}</td>
+            <td><button class="row-del" data-service="${e.service}" data-kind="${e.kind}" data-ts="${e.timestamp}">Delete</button></td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+      </div>`}
+    </div>`;
+  document.getElementById("refresh").addEventListener("click", renderAdmin);
+  document.getElementById("backToForm").addEventListener("click", () => { state={screen:"pick",service:null,area:"",name:"",ratings:{},checklist:{},incidentOpen:false,incidentDesc:"",comment:"",unsureArea:"",unsureDesc:"",submitting:false,errorMsg:""}; renderPick(); });
+  document.getElementById("exportCsv").addEventListener("click", () => exportCsv(filtered));
+  document.getElementById("archiveAll").addEventListener("click", archiveAll);
+  app2.querySelectorAll(".filter-chip").forEach(chip => chip.addEventListener("click", () => { adminFilter = chip.dataset.f; renderAdmin(); }));
+  app2.querySelectorAll(".row-del").forEach(btn => btn.addEventListener("click", () => deleteRow(btn.dataset.service, btn.dataset.kind, btn.dataset.ts)));
+}
+
+function summarizeFeedback(e){
+  let out = "";
+  if (e.ratings) {
+    const vals = Object.values(e.ratings).filter(v => typeof v === "number");
+    if (vals.length) out = `Avg rating: ${(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)}/5`;
+  }
+  if (e.comment) out += (out ? " — " : "") + String(e.comment).replace(/</g,"&lt;");
+  return out;
+}
+
+async function postAction(payload){
+  const resp = await fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  });
+  return resp.json();
+}
+
+async function deleteRow(service, kind, timestamp){
+  if(!confirm("Delete this submission? This cannot be undone.")) return;
+  try{
+    const result = await postAction({action:"delete", service, kind, timestamp});
+    if(!result.ok) throw new Error(result.error);
+    renderAdmin();
+  }catch(e){ alert("Couldn't delete that row: " + e.message); }
+}
+
+async function archiveAll(){
+  if(!confirm("Archive ALL current submissions across all services into dated archive tabs, and clear the live tabs for the next period? This cannot be undone.")) return;
+  try{
+    const result = await postAction({action:"archiveAll"});
+    if(!result.ok) throw new Error(result.error);
+    alert("Archived " + result.archivedRows + " total rows across " + result.tabs.length + " tab(s).");
+    renderAdmin();
+  }catch(e){ alert("Couldn't archive: " + e.message); }
+}
+
+function exportCsv(entries){
+  const headers = ["Date","Service","Type","Area","Name","Ratings (JSON)","Checklist (JSON)","Comment","Incident Description"];
+  const rows = entries.map(e => [
+    e.date, e.service, e.kind, e.area||"", e.name||e.reportedBy||"",
+    '"' + JSON.stringify(e.ratings||{}).replace(/"/g,'""') + '"',
+    '"' + JSON.stringify(e.checklist||{}).replace(/"/g,'""') + '"',
+    '"' + (e.comment||"").replace(/"/g,'""') + '"',
+    '"' + (e.nature||"").replace(/"/g,'""') + '"',
+  ].join(","));
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "campus-check-submissions.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+renderPick();
+</script>
+
+</body>
+</html>
